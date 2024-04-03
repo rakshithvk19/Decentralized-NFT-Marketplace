@@ -15,7 +15,7 @@ export function WalletOptions() {
         <Box>
           <Typography padding={"0.5rem"}>Connect to your wallet</Typography>
           {connectors.map((connector) => (
-            <Box display={"flex"} flexDirection={"column"}>
+            <Box display={"flex"} flexDirection={"column"} key={connector.uid}>
               <Button
                 variant="contained"
                 sx={{ margin: "0.5rem" }}
