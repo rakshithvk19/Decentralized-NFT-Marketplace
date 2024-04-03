@@ -4,6 +4,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Paper, Typography } from "@mui/material";
 
+//Also display ENS details
+
 export function Account() {
   const { address } = useAccount();
   const { disconnect } = useDisconnect();
