@@ -1,9 +1,13 @@
-function App() {
+// src/App.tsx
+import NFTUploader from "./components/NFTUploader";
+
+const App: React.FC = () => {
   return (
     <div>
-      <img src="https://gray-passive-chicken-829.mypinata.cloud/ipfs/Qmazb8vUP747ow3Di9QLQ3n5mzgWAeXP4RScy5oQbQyftY?pinataGatewayToken=n-oC6-uUw-e3PtBHio9Jexzq2pBjeuAsGA-3GQSkpjAuAELx8JGWHqaOSDVTz6B9"></img>
+      <NFTUploader />
+      {/* Other components or content can be added here */}
     </div>
   );
-}
+};
 
 export default App;
