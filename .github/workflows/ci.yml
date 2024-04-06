@@ -27,6 +27,6 @@ jobs:
           cd Frontend
           npm run build
 
-      - name: Deploy to IPFS
-        run: |
-          npx thirdweb@latest upload dist
+      # - name: Deploy to IPFS
+      #   run: |
+      #     npx thirdweb@latest upload dist
