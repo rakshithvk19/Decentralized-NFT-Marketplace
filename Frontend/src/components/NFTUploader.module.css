@@ -1,0 +1,66 @@
+/* NFTUploader.module.css */
+
+.container {
+    background: #2c2f33; /* Dark background */
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1rem;
+  }
+  
+  .header {
+    color: #fff;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  button {
+    background-color: #7289da; /* Discord blue */
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    font-size: 1rem;
+  }
+  
+  button:hover {
+    background-color: #5b6eae;
+  }
+  
+  button:disabled {
+    background-color: #4f545c; /* Muted grey */
+  }
+  
+  .image {
+    display: block;
+    max-width: 100%;
+    max-height: 200px; /* Limiting the image height for a compact look */
+    object-fit: cover;
+    margin: 0 auto; /* Centering image */
+    border-radius: 4px;
+  }
+  
+  .metadata {
+    background: #23272a; /* Slightly lighter dark background for contrast */
+    color: #bbb; /* Light grey color for text */
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem; /* Smaller font size for metadata */
+    margin-top: 0.5rem;
+  }
+  
+  pre {
+    overflow-x: auto;
+    white-space: pre-wrap; /* Ensures the text wraps and doesn't overflow */
+    word-break: break-word; /* Breaks the word to prevent overflow */
+  }
+  
