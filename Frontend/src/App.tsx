@@ -10,11 +10,10 @@ import { WagmiWrapper } from "./components/WagmiWrapper";
 const App: React.FC = () => {
   return (
     <div>
-      <NFTUploader />
-      {/* Other components or content can be added here */}
       <Appbar />
       <Container>
         <WagmiWrapper>
+          <NFTUploader />
           <Box display={"flex"} justifyContent={"center"}>
             <NFTList />
           </Box>
