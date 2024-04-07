@@ -1,0 +1,12 @@
+on:
+    pull_request:
+      types: [closed]
+    
+    jobs:
+    check-merge:
+        if: github.event.pull_request.merged == true
+        runs-on: ubuntu-latest
+        steps:
+        - name: Run build
+            run: |
+            "tsc && vite build"
