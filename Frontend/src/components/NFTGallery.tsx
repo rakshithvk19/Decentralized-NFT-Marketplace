@@ -55,28 +55,26 @@ const NFTMarketplaceABI = [
     name: "getOwnedNFTs",
     outputs: [
       {
-        internalType: "uint256[]",
+        components: [
+          {
+            internalType: "uint256",
+            name: "tokenId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "price",
+            type: "uint256",
+          },
+          {
+            internalType: "string",
+            name: "tokenURI",
+            type: "string",
+          },
+        ],
+        internalType: "struct NFTMarketplace.TokenInfo[]",
         name: "",
-        type: "uint256[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "NFTCollectionContract",
-        type: "address",
-      },
-    ],
-    name: "getOwnedNFTURIs",
-    outputs: [
-      {
-        internalType: "string[]",
-        name: "",
-        type: "string[]",
+        type: "tuple[]",
       },
     ],
     stateMutability: "view",
@@ -113,13 +111,16 @@ const NFTMarketplaceABI = [
   },
 ];
 
-const NFTMarketplaceAddress = "0x060cd9D114984a5169D083acf8a1e40f59c102c1";
+const NFTMarketplaceAddress = "0xd0c8E6ca060DCfE6A09456dCD8583676213ed81B";
+
 const NFTGallery = () => {
   const [nftMarketplaceContract, setNFTMarketplaceContract] =
     useState<ethers.Contract | null>(null);
   const [nftCollectionAddress, setNFTCollectionAddress] = useState<string>("");
-  const [ownedNFTs, setOwnedNFTs] = useState<number[]>([]);
-  const [ownedNFTImages, setOwnedNFTImages] = useState<string[]>([]); // State to store the NFT images
+  const [ownedNFTs, setOwnedNFTs] = useState<
+    { tokenId: number; price: number; tokenURI: string }[]
+  >([]);
+  const [price, setPrice] = useState(""); // Added state for price
 
   useEffect(() => {
     const initializeContract = async () => {
@@ -142,27 +143,31 @@ const NFTGallery = () => {
 
   const fetchOwnedNFTs = async () => {
     if (nftMarketplaceContract && nftCollectionAddress) {
-      const ownedTokenIds = await nftMarketplaceContract.getOwnedNFTs(
+      const ownedTokenInfos = await nftMarketplaceContract.getOwnedNFTs(
         nftCollectionAddress
       );
-      const tokenIds = ownedTokenIds.map(
-        (tokenId: { toString: () => string }) => parseInt(tokenId.toString())
-      );
-      setOwnedNFTs(tokenIds);
-      console.log("Owned NFTs:", ownedTokenIds);
-      const uris = await nftMarketplaceContract.getOwnedNFTURIs(
-        nftCollectionAddress
-      );
-      const images = await Promise.all(
-        uris.map(async (uri: string) => {
-          const metadataUrl = uri.replace("ipfs://", "https://ipfs.io/ipfs/"); // Convert IPFS URL to HTTP URL
-          const metadata = await fetch(metadataUrl).then((res) => res.json());
-          return metadata.image.replace("ipfs://", "https://ipfs.io/ipfs/"); // Convert IPFS URL to HTTP URL for the image
-        })
-      );
-      console.log("Owned NFTs:", images);
 
-      setOwnedNFTImages(images);
+      const tokenDetails = await Promise.all(
+        ownedTokenInfos.map(
+          async (info: { tokenURI: string; tokenId: string; price: any }) => {
+            const metadataUrl = info.tokenURI.replace(
+              "ipfs://",
+              "https://ipfs.io/ipfs/"
+            );
+            const metadata = await fetch(metadataUrl).then((res) => res.json());
+            const imageUrl = metadata.image.replace(
+              "ipfs://",
+              "https://ipfs.io/ipfs/"
+            );
+            return {
+              tokenId: info.tokenId.toString(), // Convert BigNumber to number
+              price: info.price,
+              tokenURI: imageUrl, // Use the image URL from the metadata
+            };
+          }
+        )
+      );
+      setOwnedNFTs(tokenDetails);
     }
   };
 
@@ -172,8 +177,21 @@ const NFTGallery = () => {
     }
   }, [nftMarketplaceContract, nftCollectionAddress]);
 
+  const handleBuy = async (tokenId: number, price: string) => {
+    if (!nftMarketplaceContract || !price) return;
+
+    const transaction = await nftMarketplaceContract.buyNFT(
+      nftCollectionAddress,
+      tokenId,
+      { value: ethers.parseEther(price) }
+    );
+    await transaction.wait();
+    fetchOwnedNFTs(); // Refresh the owned NFTs list
+  };
+
   return (
-    <div>
+    <div className={styles.nftGallery}>
+      <h1>NFT Gallery</h1>
       <input
         type="text"
         placeholder="Enter NFT Collection Address"
@@ -182,10 +200,17 @@ const NFTGallery = () => {
       />
       <button onClick={fetchOwnedNFTs}>Fetch Owned NFTs</button>
       <div className={styles.nftGrid}>
-        {ownedNFTs.map((tokenId, index) => (
-          <div className={styles.nftItem} key={tokenId}>
-            <h3>Token ID: {tokenId}</h3>
-            <img src={ownedNFTImages[index]} alt={`NFT ${tokenId}`} />
+        {ownedNFTs.map((nft) => (
+          <div className={styles.nftItem} key={nft.tokenId}>
+            <h3>Token ID: {nft.tokenId}</h3>
+            <img src={nft.tokenURI} alt={`NFT ${nft.tokenId}`} />
+            <p>Price: {ethers.formatEther(nft.price)} ETH</p>
+            <input
+              type="number"
+              placeholder="Enter your price"
+              onChange={(e) => setPrice(e.target.value)}
+            />
+            <button onClick={() => handleBuy(nft.tokenId, price)}>Buy</button>
           </div>
         ))}
       </div>
