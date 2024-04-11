@@ -19,7 +19,7 @@ const NFTUploader: React.FC = () => {
         <button onClick={handleSubmission}>Submit</button>
         <button onClick={() => handleProcess(cid)}>Process Metadata</button>
       </div>
-      {cid && (
+      {/* {cid && (
         <img
           className={styles.image}
           src={`https://ipfs.io/ipfs/${cid}`}
@@ -28,7 +28,7 @@ const NFTUploader: React.FC = () => {
       )}
       <div className={styles.metadata}>
         <MetadataViewer metadata={metadata} />
-      </div>
+      </div> */}
     </div>
   );
 };
