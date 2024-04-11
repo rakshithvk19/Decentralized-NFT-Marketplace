@@ -1,22 +1,20 @@
-// src/App.tsx
 import NFTUploader from "./components/NFTUploader";
-import { Container } from "@mui/system";
-import { Appbar } from "./components/Appbar";
-import { NFTList } from "./components/NFTList";
-import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
 
 import { WagmiWrapper } from "./components/WagmiWrapper";
+import { MintNFT } from "./components/MintNFT";
+import { SendTransaction } from "./components/Send-Transaction";
+import TestWriteContract from "./components/TestWriteContract";
 
 const App: React.FC = () => {
   return (
     <div>
-      <Appbar />
       <Container>
         <WagmiWrapper>
-          <NFTUploader />
-          <Box display={"flex"} justifyContent={"center"}>
-            <NFTList />
-          </Box>
+          {/* <NFTUploader /> */}
+          <MintNFT />
+          {/* <SendTransaction /> */}
+          {/* <TestWriteContract /> */}
         </WagmiWrapper>
       </Container>
     </div>
