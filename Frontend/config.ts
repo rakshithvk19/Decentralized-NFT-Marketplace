@@ -1,5 +1,5 @@
 import { http, createConfig } from "@wagmi/core";
-import { sepolia, foundry, holesky } from "@wagmi/core/chains";
+import { sepolia, holesky } from "@wagmi/core/chains";
 import { injected } from "@wagmi/connectors";
 
 export const config = createConfig({
