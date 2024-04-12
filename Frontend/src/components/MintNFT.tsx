@@ -31,19 +31,12 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-// // Create metadata based on the image's IPFS hash
-// const metadata: IMetadata = {
-//   name: "Image Name",
-//   description: "Image Description",
-//   image: `ipfs://${imageCid}`,
-// };
-
 const MintNFT: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
-  const [NFTName, setNFTName] = useState<string>("test");
-  const [NFTDescription, setNFTDescription] = useState<string>("test");
-  const [NFTValue, setNFTValue] = useState<number>(1);
+  const [NFTName, setNFTName] = useState<string | null>(null);
+  const [NFTDescription, setNFTDescription] = useState<string | null>(null);
+  const [NFTValue, setNFTValue] = useState<number | null>(null);
   const [cid, setCid] = useState<string | null>(null);
   const [metadataCid, setMetadataCid] = useState<string | null>(null);
   const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(
@@ -94,7 +87,7 @@ const MintNFT: React.FC = () => {
         _tokenURI,
         ethers.parseUnits(_value.toString(), "ether")
       );
-      console.log(ownedTokenInfos);
+      console.log(ownedTokenInfos.hash);
     } catch (error) {
       if (error.revertedWith) {
         console.error("Transaction reverted with reason:", error.revertedWith);
@@ -187,6 +180,7 @@ const MintNFT: React.FC = () => {
         );
         const metadataResData = await metadataRes.json();
         const metadataCid = metadataResData.IpfsHash;
+        console.log("Metadata CID of the NFT:", metadataCid);
         setMetadataCid(metadataCid); //Metadata of the NFT
       } catch (error) {
         console.log("Error while uploading metadata to IPFS: ", error);
