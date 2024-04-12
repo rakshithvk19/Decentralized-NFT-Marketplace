@@ -8,15 +8,12 @@ import {
   Button,
   styled,
 } from "@mui/material";
-
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { IMetadata } from "../interfaces/IMetadata";
 
-import { config } from "../../config";
-
 import TokenABI from "../Token.abi.json";
-import { Pending } from "@mui/icons-material";
 const TOKEN_CONTRACT_ADDRESS = "0xdaB8655C3f9aB61373B1dA2D5D8ba93456D62419";
 
 const VisuallyHiddenInput = styled("input")({
@@ -34,14 +31,17 @@ const VisuallyHiddenInput = styled("input")({
 const MintNFT: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
-  const [NFTName, setNFTName] = useState<string | null>(null);
-  const [NFTDescription, setNFTDescription] = useState<string | null>(null);
-  const [NFTValue, setNFTValue] = useState<number | null>(null);
+  const [NFTName, setNFTName] = useState<string | null>("");
+  const [NFTDescription, setNFTDescription] = useState<string | null>("");
+  const [NFTValue, setNFTValue] = useState<number>(0);
+
   const [cid, setCid] = useState<string | null>(null);
   const [metadataCid, setMetadataCid] = useState<string | null>(null);
   const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(
     null
   );
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   //Use Effect to initialize the token contract.
   useEffect(() => {
@@ -65,17 +65,24 @@ const MintNFT: React.FC = () => {
 
   //useEffect to update metadata CID.
   useEffect(() => {
-    if (!cid) {
+    if (cid) {
       pinImageMetadataToIPFS();
     }
   }, [cid]);
 
   //useEffect to mint the NFT after metadataCID is fetched
   useEffect(() => {
-    if (!metadataCid || !NFTValue) {
+    if (metadataCid && NFTValue) {
       mintNFT(`ipfs://${metadataCid}`, NFTValue);
     }
   }, [metadataCid]);
+
+  //useEffect to clear the form.
+  useEffect(() => {
+    if (!isLoading) {
+      clearForm();
+    }
+  }, [isLoading]);
 
   const mintNFT = async (_tokenURI: string, _value: number) => {
     if (!tokenContract) {
@@ -87,10 +94,14 @@ const MintNFT: React.FC = () => {
         _tokenURI,
         ethers.parseUnits(_value.toString(), "ether")
       );
-      console.log(ownedTokenInfos.hash);
+
+      if (ownedTokenInfos.hash) {
+        setIsLoading(false);
+      }
+
     } catch (error) {
-      if (error.revertedWith) {
-        console.error("Transaction reverted with reason:", error.revertedWith);
+      if (error) {
+        console.error("Transaction reverted with reason:", error);
       } else {
         console.error("An error occurred:", error);
       }
@@ -150,6 +161,7 @@ const MintNFT: React.FC = () => {
     }
   };
 
+  //Pinning Image Metadata to IPFS
   const pinImageMetadataToIPFS = async () => {
     if (cid && NFTName && NFTDescription && NFTValue) {
       // Create metadata based on the image's IPFS hash
@@ -188,73 +200,93 @@ const MintNFT: React.FC = () => {
     }
   };
 
-  const handleSubmission = async (event: React.ChangeEvent) => {
+  const handleSubmission = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!selectedFile) {
       return;
     }
 
+    setIsLoading(true);
     pinImageToIPFS(selectedFile);
+  };
+
+  // Clear form function
+  const clearForm = (): void => {
+    if (!isLoading) {
+      setSelectedFile(null);
+      setImageUrl("");
+      setNFTName("");
+      setNFTDescription("");
+      setNFTValue(0);
+      setCid(null);
+      setMetadataCid(null);
+    }
   };
 
   return (
     <Paper>
-      <Box
-        display={"flex"}
-        flexDirection={"column"}
-        rowGap={1}
-        padding={2}
-        component={"form"}
-        onSubmit={handleSubmission}
-      >
-        <Typography variant="h4">Mint NFT</Typography>
-
-        <Button
-          component="label"
-          role={undefined}
-          variant="contained"
-          tabIndex={-1}
-          startIcon={<CloudUploadIcon />}
+      {isLoading ? (
+        <Box justifyContent={"center"}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box
+          display={"flex"}
+          flexDirection={"column"}
+          rowGap={1}
+          padding={2}
+          component={"form"}
+          onSubmit={handleSubmission}
         >
-          Upload file
-          <VisuallyHiddenInput
-            type="file"
-            accept="image/png, image/gif, image/jpeg"
-            onChange={handleFile}
+          <Typography variant="h4">Mint NFT</Typography>
+
+          <Button
+            component="label"
+            role={undefined}
+            variant="contained"
+            tabIndex={-1}
+            startIcon={<CloudUploadIcon />}
+          >
+            Upload file
+            <VisuallyHiddenInput
+              type="file"
+              accept="image/png, image/gif, image/jpeg"
+              onChange={handleFile}
+            />
+          </Button>
+          {imageUrl && (
+            <Box display={"flex"} justifyContent={"center"}>
+              <img src={imageUrl} style={{ height: "300px", width: "300px" }} />
+            </Box>
+          )}
+          <TextField
+            label="NFT Name"
+            variant="outlined"
+            value={NFTName}
+            onChange={handleNFTNameChange}
+            required
           />
-        </Button>
-        {imageUrl && (
-          <Box display={"flex"} justifyContent={"center"}>
-            <img src={imageUrl} style={{ height: "300px", width: "300px" }} />
-          </Box>
-        )}
-        <TextField
-          label="NFT Name"
-          variant="outlined"
-          value={NFTName}
-          onChange={handleNFTNameChange}
-          required
-        />
-        <TextField
-          label="NFT Description"
-          variant="outlined"
-          multiline
-          value={NFTDescription}
-          onChange={handleNFTDescChange}
-          minRows={2}
-          required
-        />
-        <TextField
-          label="NFT Value"
-          placeholder="0.01ETH"
-          value={NFTValue}
-          onChange={handleNFTValueChange}
-          required
-        />
-        <Button variant="contained" type="submit">
-          MINT NFT
-        </Button>
-      </Box>
+          <TextField
+            label="NFT Description"
+            variant="outlined"
+            multiline
+            value={NFTDescription}
+            onChange={handleNFTDescChange}
+            minRows={2}
+            required
+          />
+          <TextField
+            label="NFT Value"
+            placeholder="0.01ETH"
+            value={NFTValue}
+            onChange={handleNFTValueChange}
+            required
+          />
+          <Button variant="contained" type="submit">
+            MINT NFT
+          </Button>
+        </Box>
+      )}
     </Paper>
   );
 };
