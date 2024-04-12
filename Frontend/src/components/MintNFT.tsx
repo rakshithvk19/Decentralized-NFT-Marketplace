@@ -34,6 +34,7 @@ const MintNFT: React.FC = () => {
   const [NFTName, setNFTName] = useState<string | null>("");
   const [NFTDescription, setNFTDescription] = useState<string | null>("");
   const [NFTValue, setNFTValue] = useState<number>(0);
+
   const [cid, setCid] = useState<string | null>(null);
   const [metadataCid, setMetadataCid] = useState<string | null>(null);
   const [tokenContract, setTokenContract] = useState<ethers.Contract | null>(
@@ -97,6 +98,7 @@ const MintNFT: React.FC = () => {
       if (ownedTokenInfos.hash) {
         setIsLoading(false);
       }
+
     } catch (error) {
       if (error) {
         console.error("Transaction reverted with reason:", error);
