@@ -1,7 +1,4 @@
-import NFTUploader from "./components/NFTUploader";
 import Container from "@mui/material/Container";
-import { NFTList } from "./components/NFTList";
-import Box from "@mui/material/Box";
 import NFTGallery from "./components/NFTGallery";
 
 import { WagmiWrapper } from "./components/WagmiWrapper";
@@ -13,10 +10,6 @@ const App: React.FC = () => {
       <Container>
         <WagmiWrapper>
           <MintNFT />
-          <NFTUploader />
-          <Box display={"flex"} justifyContent={"center"}>
-            <NFTList />
-          </Box>
           <NFTGallery />
         </WagmiWrapper>
       </Container>
