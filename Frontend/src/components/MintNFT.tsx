@@ -13,8 +13,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import { IMetadata } from "../interfaces/IMetadata";
 
-import TokenABI from "../Token.abi.json";
-const TOKEN_CONTRACT_ADDRESS = "0xdaB8655C3f9aB61373B1dA2D5D8ba93456D62419";
+import TokenABI from "../abi/Token.abi.json";
+const TOKEN_CONTRACT_ADDRESS = "0xf0b32adf62A93F56C057540bb960303D776F25Fe";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -33,7 +33,7 @@ const MintNFT: React.FC = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [NFTName, setNFTName] = useState<string | null>("");
   const [NFTDescription, setNFTDescription] = useState<string | null>("");
-  const [NFTValue, setNFTValue] = useState<number>(0);
+  // const [NFTValue, setNFTValue] = useState<number>(0);
 
   const [cid, setCid] = useState<string | null>(null);
   const [metadataCid, setMetadataCid] = useState<string | null>(null);
@@ -72,8 +72,8 @@ const MintNFT: React.FC = () => {
 
   //useEffect to mint the NFT after metadataCID is fetched
   useEffect(() => {
-    if (metadataCid && NFTValue) {
-      mintNFT(`ipfs://${metadataCid}`, NFTValue);
+    if (metadataCid) {
+      mintNFT(`ipfs://${metadataCid}`);
     }
   }, [metadataCid]);
 
@@ -84,21 +84,17 @@ const MintNFT: React.FC = () => {
     }
   }, [isLoading]);
 
-  const mintNFT = async (_tokenURI: string, _value: number) => {
+  const mintNFT = async (_tokenURI: string) => {
     if (!tokenContract) {
       return;
     }
 
     try {
-      const ownedTokenInfos = await tokenContract.createToken(
-        _tokenURI,
-        ethers.parseUnits(_value.toString(), "ether")
-      );
+      const ownedTokenInfos = await tokenContract.createToken(_tokenURI);
 
       if (ownedTokenInfos.hash) {
         setIsLoading(false);
       }
-
     } catch (error) {
       if (error) {
         console.error("Transaction reverted with reason:", error);
@@ -119,11 +115,11 @@ const MintNFT: React.FC = () => {
     setImageUrl(URL.createObjectURL(file));
   };
 
-  const handleNFTValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // Parse the input value to a number, handling cases where the input might not be a valid number
-    const value = parseFloat(event.target.value);
-    setNFTValue(isNaN(value) ? 0 : value);
-  };
+  // const handleNFTValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   // Parse the input value to a number, handling cases where the input might not be a valid number
+  //   const value = parseFloat(event.target.value);
+  //   setNFTValue(isNaN(value) ? 0 : value);
+  // };
 
   const handleNFTDescChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Parse the input value to a number, handling cases where the input might not be a valid number
@@ -163,7 +159,7 @@ const MintNFT: React.FC = () => {
 
   //Pinning Image Metadata to IPFS
   const pinImageMetadataToIPFS = async () => {
-    if (cid && NFTName && NFTDescription && NFTValue) {
+    if (cid && NFTName && NFTDescription) {
       // Create metadata based on the image's IPFS hash
       const metadata: IMetadata = {
         name: NFTName,
@@ -217,7 +213,7 @@ const MintNFT: React.FC = () => {
       setImageUrl("");
       setNFTName("");
       setNFTDescription("");
-      setNFTValue(0);
+      // setNFTValue(0);
       setCid(null);
       setMetadataCid(null);
     }
@@ -275,13 +271,13 @@ const MintNFT: React.FC = () => {
             minRows={2}
             required
           />
-          <TextField
+          {/* <TextField
             label="NFT Value"
             placeholder="0.01ETH"
             value={NFTValue}
             onChange={handleNFTValueChange}
             required
-          />
+          /> */}
           <Button variant="contained" type="submit">
             MINT NFT
           </Button>
