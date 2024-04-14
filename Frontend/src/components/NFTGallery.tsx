@@ -1,117 +1,9 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import styles from "./NFTGallery.module.css";
+import NFTMarketplaceABI from "../abi/Marketplace.abi.json";
 
-const NFTMarketplaceABI = [
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "NFTCollectionContract",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "buyNFT",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "NFTCollectionContract",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "price",
-        type: "uint256",
-      },
-    ],
-    name: "listNFT",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "NFTCollectionContract",
-        type: "address",
-      },
-    ],
-    name: "getOwnedNFTs",
-    outputs: [
-      {
-        components: [
-          {
-            internalType: "uint256",
-            name: "tokenId",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "price",
-            type: "uint256",
-          },
-          {
-            internalType: "string",
-            name: "tokenURI",
-            type: "string",
-          },
-        ],
-        internalType: "struct NFTMarketplace.TokenInfo[]",
-        name: "",
-        type: "tuple[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "listings",
-    outputs: [
-      {
-        internalType: "address",
-        name: "seller",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "price",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-];
-
-const NFTMarketplaceAddress = "0xd0c8E6ca060DCfE6A09456dCD8583676213ed81B";
+const NFTMarketplaceAddress = "0x079c90fdA4A8011cCf54987Ae777DD5bD1530B86";
 
 const NFTGallery = () => {
   const [nftMarketplaceContract, setNFTMarketplaceContract] =
@@ -146,6 +38,8 @@ const NFTGallery = () => {
       const ownedTokenInfos = await nftMarketplaceContract.getOwnedNFTs(
         nftCollectionAddress
       );
+      console.log("Owned NFTs:");
+      console.log(ownedTokenInfos);
 
       const tokenDetails = await Promise.all(
         ownedTokenInfos.map(
@@ -191,14 +85,16 @@ const NFTGallery = () => {
 
   return (
     <div className={styles.nftGallery}>
-      <h1>NFT Gallery</h1>
+      <h1>NFT's Listed for Sale</h1>
       <input
         type="text"
         placeholder="Enter NFT Collection Address"
         value={nftCollectionAddress}
         onChange={(e) => setNFTCollectionAddress(e.target.value)}
       />
-      <button onClick={fetchOwnedNFTs}>Fetch Owned NFTs</button>
+      <button onClick={fetchOwnedNFTs}>
+        Fetch NFTS for sale from a collection
+      </button>
       <div className={styles.nftGrid}>
         {ownedNFTs.map((nft) => (
           <div className={styles.nftItem} key={nft.tokenId}>
